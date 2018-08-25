@@ -1,0 +1,149 @@
+﻿{
+  "ReRoutes": [
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "ServiceName": "CAS.ClientService",
+      "LoadBalancer": "RoundRobin",
+      "UseServiceDiscovery": false,
+      "UpstreamPathTemplate": "/BookingApi/swagger.json",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "PUT" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8001
+        }
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "ServiceName": "CAS.ClientService",
+      "LoadBalancer": "RoundRobin",
+      "UseServiceDiscovery": false,
+      "UpstreamPathTemplate": "/PassengerApi/swagger.json",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "PUT" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8002
+        }
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/connect/token",
+      "UpstreamPathTemplate": "/api/connect/token",
+      "UpstreamHttpMethod": [ "Post" ],
+      "ReRouteIsCaseSensitive": false,
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5001
+        }
+      ],
+      "Key": "IdentityService",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1s",
+        "PeriodTimespan": 15,
+        "Limit": 1
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/booking",
+      "UpstreamPathTemplate": "/api/booking",
+      "UpstreamHttpMethod": [ "Get" ],
+      "ReRouteIsCaseSensitive": false,
+      "DownstreamScheme": "http",
+
+      "ServiceName": "API001",
+      "UseServiceDiscovery": true,
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
+      "Key": "booking",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1s",
+        "PeriodTimespan": 15,
+        "Limit": 1
+      },
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowScopes": [ "TWAPI" ]
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/booking/{pnr}",
+      "UpstreamPathTemplate": "/api/booking/{pnr}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "ReRouteIsCaseSensitive": false,
+      "DownstreamScheme": "http",
+
+      "ServiceName": "API001",
+      "LoadBalancer": "NoLoadBalancer",
+      "UseServiceDiscovery": true,
+
+
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowScopes": [ "TWAPI" ]
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/passenger",
+      "UpstreamPathTemplate": "/api/passenger",
+      "UpstreamHttpMethod": [ "Get" ],
+      "ReRouteIsCaseSensitive": false,
+      "DownstreamScheme": "http",
+
+      "ServiceName": "API002",
+      "LoadBalancer": "NoLoadBalancer",
+      "UseServiceDiscovery": true,
+
+
+      "Key": "passenger",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowScopes": [ "TWAPI" ]
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/passenger/{id}",
+      "UpstreamPathTemplate": "/api/passenger/{id}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "ReRouteIsCaseSensitive": false,
+      "DownstreamScheme": "http",
+
+      "ServiceName": "API002",
+      "LoadBalancer": "NoLoadBalancer",
+      "UseServiceDiscovery": true,
+
+
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowScopes": [ "TWAPI" ]
+      }
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:5000",
+    "ServiceDiscoveryProvider": {
+      "Host": "127.0.0.1",
+      "Port": 8500,
+      "Type": "Consul"
+    }
+  },
+  "Aggregates": [
+    {
+      "ReRouteKeys": [
+        "booking",
+        "passenger"
+      ],
+      "UpstreamPathTemplate": "/api/getbookingpassengerinfo"
+    }
+  ]
+}
